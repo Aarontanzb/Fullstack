@@ -7,12 +7,12 @@
     Server-->>Browser: HTML-code
     Browser->>Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
     Server-->>Browser: main.css
-    Browser->>Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.js
-    Server-->>Browser: main.js
+    Browser->>Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/spa.js
+    Server-->>Browser: spa.js
     Note over Browser: browser starts executing js-code that requests JSON data from server
     Browser->>Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
-    Server-->>Browser: [{content: "HTML is easy", date: "2022-12-31"}, ...]
-    Note over Browser: browser executes the event handler that renders notes to display
+    Server-->>Browser: data.json
+    Note over Browser: browser executes event handler that renders notes to display
     </pre>
 
     <script type="module">
