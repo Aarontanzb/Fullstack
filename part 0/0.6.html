@@ -1,0 +1,20 @@
+<html>
+  <body>
+    Mermaid diagram of note
+    <pre class="mermaid">
+      sequenceDiagram
+    Note over Browser: Submit button clicked
+    Note over Browser: Default GET is prevented
+    Note over Browser: Add new note to note list and render updated list
+    Browser->>Server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+    Note right of Browser: Send JSON data to server
+    Note left of Server: Server JSON data is updated
+    Server-->>Browser: 201 status response
+    </pre>
+
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@9/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: true });
+    </script>
+  </body>
+</html>
