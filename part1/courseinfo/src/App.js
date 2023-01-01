@@ -21,8 +21,9 @@ const App = () => {
     return <h1>{props.course.name}</h1>
   }
 
-  const Part = (props) => {
-    return <p>{props.part.name} {props.part.exercises}</p>
+  const Part = (props) => { 
+    const { name, exercises } = props.part
+    return <p>{name} {exercises}</p>
   }
 
   const Content = (props) => {
