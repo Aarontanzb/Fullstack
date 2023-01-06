@@ -3,6 +3,7 @@ import axios from 'axios'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import personService from './services/phonenumbers'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -14,10 +15,9 @@ const App = () => {
   const [newSearch, setNewSearch] = useState('')
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+    personService.getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
     }, [])
 
@@ -28,20 +28,38 @@ const App = () => {
       id: persons.length + 1,
       number: newNumber
     }
-    if (persons.find(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
-    }
+
+    const foundPerson = persons.find(person => person.name === nameObject.name)
+
+    if (foundPerson) {
+      if (window.confirm(`${nameObject.name} is already added to the phonebook, replace the old number with a new one?`)) {
+      personService.update(foundPerson.id, nameObject)
+        .then(returnedObject => {
+          setPersons(persons.map(person => person.id !== foundPerson.id ? person : returnedObject))
+        })
+    }}
     else {
-      setPersons(persons.concat(nameObject))
-      setNewName('')
-      setNewNumber('')
-      setNewSearch('')
+      personService.create(nameObject)
+        .then(returnedObject => {
+          setPersons(persons.concat(returnedObject))
+        setNewName('')
+        setNewNumber('')
+        setNewSearch('')
+    })
     }
   }
 
   const handleChange = setValue => e => setValue(e.target.value)
 
-  const personsToShow = persons.filter(person => person.name.toLowerCase().includes(newSearch.toLowerCase()))
+  const handleRemove = (id,name) => () => {
+    if (window.confirm(`Delete ${name} ?`)) {
+    personService.remove(id)
+    .then(setPersons(persons.filter(person => person.name !== name)))
+  }
+  }
+
+  const personsToShow = persons.filter(person =>person.name.toLowerCase().includes(newSearch))
+  
 
   return (
     <div>
@@ -55,7 +73,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons persons={personsToShow} />
+      <Persons persons={personsToShow} handleDelete={handleRemove} />
     </div>
   )
 }
