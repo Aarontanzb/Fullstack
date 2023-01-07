@@ -1,18 +1,16 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import personService from './services/phonenumbers'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
-
   const [newName, setNewName] = useState('')
-
   const [newNumber, setNewNumber] = useState('')
-
   const [newSearch, setNewSearch] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     personService.getAll()
@@ -36,12 +34,20 @@ const App = () => {
       personService.update(foundPerson.id, nameObject)
         .then(returnedObject => {
           setPersons(persons.map(person => person.id !== foundPerson.id ? person : returnedObject))
+          setErrorMessage(`Number of ${foundPerson.name} is changed`)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
         })
     }}
     else {
       personService.create(nameObject)
         .then(returnedObject => {
           setPersons(persons.concat(returnedObject))
+        setErrorMessage(`Added ${newName}`)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
         setNewName('')
         setNewNumber('')
         setNewSearch('')
@@ -51,10 +57,17 @@ const App = () => {
 
   const handleChange = setValue => e => setValue(e.target.value)
 
-  const handleRemove = (id,name) => () => {
+  const handleRemove = (id, name) => () => {
     if (window.confirm(`Delete ${name} ?`)) {
     personService.remove(id)
     .then(setPersons(persons.filter(person => person.name !== name)))
+    .catch(error => {
+      setErrorMessage(`Information of ${name} has already been removed from server`)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+      setPersons(persons.filter(person => person.name !== name))
+    })
   }
   }
 
@@ -64,7 +77,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-
+      <Notification message={errorMessage} />
       <Filter query={newSearch} handleChange={handleChange(setNewSearch)} />
 
       <h3>add a new</h3>
