@@ -132,6 +132,40 @@ test('blog without URL is not added', async () => {
   expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
 })
 
+test('status code 204 if id is valid from deleting blog', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToDelete = blogsAtStart[0]
+  await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+
+  blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialNotes.length - 1)
+
+  const titles = blogsAtEnd.map((b) => b.title)
+  expect(titles).not.toContain(blogToDelete.title)
+})
+
+test('status code 200 if blog can be updated', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToUpdate = blogsAtStart[0]
+
+  const newBlog = {
+    title: 'TD architecture',
+    author: 'Robert C.',
+    url: 'https://reactpatterns.com/',
+    likes: 4,
+  }
+
+  await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(newBlog)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const updatedBlog = blogsAtEnd[0]
+  expect(updatedBlog.likes).toBe(newBlog.likes)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
