@@ -7,6 +7,7 @@ require('dotenv').config()
 loginRouter.post('/', async (request, response) => {
   const { username, password } = request.body
 
+  console.log('1')
   const user = await User.findOne({ username })
   const passwordCorrect =
     user === null ? false : await bcrypt.compare(password, user.passwordHash)
