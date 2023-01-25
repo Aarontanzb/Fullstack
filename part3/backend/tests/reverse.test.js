@@ -12,14 +12,8 @@ test('reverse of react', () => {
   expect(result).toBe('tcaer')
 })
 
-test('reverse of releveler', () => {
-  const result = reverse('releveler')
+test('reverse of saippuakauppias', () => {
+  const result = reverse('saippuakauppias')
 
-  expect(result).toBe('releveler')
-})
-
-test('palindrome of react', () => {
-  const result = reverse('react')
-
-  expect(result).toBe('tcaer')
+  expect(result).toBe('saippuakauppias')
 })
