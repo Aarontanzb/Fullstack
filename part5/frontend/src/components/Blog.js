@@ -12,18 +12,22 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
   return (
     <div style={blogStyle} className="blog">
       {blog.title} {blog.author}
-      <Togglable buttonLabel="view">
+      <Togglable buttonLabel="view" className="view">
         <div className="togglableContent">
           <div>{blog.url}</div>
           <div>
             likes {blog.likes}
-            <button onClick={handleLike}>like</button>
+            <button id="like-button" onClick={handleLike}>
+              like
+            </button>
           </div>
         </div>
         <div> {blog.user?.name}</div>
         {user?.username !== null ? (
           blog.user?.username === user?.username ? (
-            <button onClick={handleDelete}>remove</button>
+            <button id="remove-button" onClick={handleDelete}>
+              remove
+            </button>
           ) : (
             ''
           )
