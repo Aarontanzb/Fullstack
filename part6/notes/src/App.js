@@ -1,8 +1,8 @@
-import Notes from './components/Notes'
-import NewNote from './components/NewNote'
+import Notes from "./components/Notes"
+import NewNote from "./components/NewNote"
 
 const App = () => {
-  return (
+  return(
     <div>
       <NewNote />
       <Notes />
