@@ -9,8 +9,8 @@ import filterReducer from './reducers/filterReducer'
 const store = configureStore({
   reducer: {
     notes: noteReducer,
-    filter: filterReducer,
-  },
+    filter: filterReducer
+  }
 })
 
 ReactDOM.createRoot(document.getElementById('root')).render(
