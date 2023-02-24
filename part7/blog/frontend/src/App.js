@@ -12,7 +12,7 @@ import Togglable from './components/Togglable'
 const notificationReducer = (state, action) => {
   switch (action.type) {
     case 'SET':
-      return action.payload
+      return { message: action.payload }
     default:
       return state
   }
@@ -21,7 +21,6 @@ const notificationReducer = (state, action) => {
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState('')
-  const [info, setInfo] = useState({ message: null })
   const [notification, notificationDispatch] = useReducer(notificationReducer, {
     message: null
   })
@@ -38,12 +37,13 @@ const App = () => {
   }, [])
 
   const notifyWith = (message) => {
-    setInfo({
-      message
+    notificationDispatch({
+      type: 'SET',
+      payload: message
     })
 
     setTimeout(() => {
-      setInfo({ message: null })
+      notificationDispatch({ type: 'SET', payload: null })
     }, 3000)
   }
 
@@ -93,7 +93,7 @@ const App = () => {
     return (
       <div>
         <h2>log in to application</h2>
-        <Notification info={info} />
+        <Notification info={notification} />
         <LoginForm login={login} />
       </div>
     )
@@ -104,7 +104,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification info={info} />
+      <Notification info={notification} />
       <div>
         {user.name} logged in
         <button onClick={logout}>logout</button>
