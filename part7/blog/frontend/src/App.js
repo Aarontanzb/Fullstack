@@ -1,31 +1,26 @@
-import { useState, useEffect, useRef, useReducer } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import storageService from './services/storage'
+import {
+  useNotificationDispatch,
+  useNotificationValue
+} from './NotificationContext'
 
 import LoginForm from './components/Login'
 import NewBlog from './components/NewBlog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 
-const notificationReducer = (state, action) => {
-  switch (action.type) {
-    case 'SET':
-      return { message: action.payload }
-    default:
-      return state
-  }
-}
-
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState('')
-  const [notification, notificationDispatch] = useReducer(notificationReducer, {
-    message: null
-  })
 
   const blogFormRef = useRef()
+
+  const dispatch = useNotificationDispatch()
+  const notification = useNotificationValue()
 
   useEffect(() => {
     const user = storageService.loadUser()
@@ -37,13 +32,13 @@ const App = () => {
   }, [])
 
   const notifyWith = (message) => {
-    notificationDispatch({
+    dispatch({
       type: 'SET',
       payload: message
     })
 
     setTimeout(() => {
-      notificationDispatch({ type: 'SET', payload: null })
+      dispatch({ type: 'SET', payload: null })
     }, 3000)
   }
 
