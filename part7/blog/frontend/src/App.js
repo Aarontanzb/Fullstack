@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useReducer } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -9,10 +9,22 @@ import NewBlog from './components/NewBlog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 
+const notificationReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET':
+      return action.payload
+    default:
+      return state
+  }
+}
+
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState('')
   const [info, setInfo] = useState({ message: null })
+  const [notification, notificationDispatch] = useReducer(notificationReducer, {
+    message: null
+  })
 
   const blogFormRef = useRef()
 
@@ -25,10 +37,9 @@ const App = () => {
     blogService.getAll().then((blogs) => setBlogs(blogs))
   }, [])
 
-  const notifyWith = (message, type = 'info') => {
+  const notifyWith = (message) => {
     setInfo({
-      message,
-      type
+      message
     })
 
     setTimeout(() => {
