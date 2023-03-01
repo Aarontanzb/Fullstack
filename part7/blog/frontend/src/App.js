@@ -7,15 +7,33 @@ import {
 } from './NotificationContext'
 import { useLoginDispatch, useLoginValue } from './LoginContext'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { getBlogs, createBlog, updateBlog, removeBlog } from './requests'
+import {
+  getBlogs,
+  createBlog,
+  updateBlog,
+  removeBlog,
+  getUsers
+} from './requests'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useParams,
+  useMatch
+} from 'react-router-dom'
 
-import Blog from './components/Blog'
+import Blogs from './components/Blogs'
 import LoginForm from './components/Login'
 import NewBlog from './components/NewBlog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 
 const App = () => {
+  const padding = {
+    padding: 5
+  }
+
   const blogFormRef = useRef()
 
   const nDispatch = useNotificationDispatch()
@@ -52,7 +70,14 @@ const App = () => {
     }
   })
 
+  const resultUser = useQuery('users', getUsers)
+  const allUsers = resultUser.data
+
   const result = useQuery('blogs', getBlogs)
+
+  if (resultUser.isLoading) {
+    return <div>loading data...</div>
+  }
 
   if (result.isLoading) {
     return <div>loading data...</div>
@@ -100,25 +125,6 @@ const App = () => {
     newBlogMutation.mutate({ newBlog })
   }
 
-  const like = async (blog) => {
-    updateBlogMutation.mutate({
-      ...blog,
-      likes: blog.likes + 1,
-      user: blog.user.id
-    })
-    notifyWith(`A like for the blog '${blog.title}' by '${blog.author}'`)
-  }
-
-  const remove = async (blog) => {
-    const ok = window.confirm(
-      `Sure you want to remove '${blog.title}' by ${blog.author}`
-    )
-    if (ok) {
-      removeBlogMutation.mutate(blog.id)
-      notifyWith(`The blog' ${blog.title}' by '${blog.author} removed`)
-    }
-  }
-
   if (!user) {
     return (
       <div>
@@ -131,29 +137,153 @@ const App = () => {
 
   const byLikes = (b1, b2) => b2.likes - b1.likes
 
+  const Home = () => {
+    return (
+      <div>
+        <h2>blogs</h2>
+        <Notification info={notification} />
+        <div>{user.name} logged in</div>
+        <div>
+          <button onClick={logout}>logout</button>
+        </div>
+        <Togglable buttonLabel="new blog" ref={blogFormRef}>
+          <NewBlog addBlog={addBlog} />
+        </Togglable>
+        <div>
+          {allBlogs.sort(byLikes).map((blog) => (
+            <Blogs blog={blog} key={blog.id} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const Users = () => {
+    return (
+      <div>
+        <h2>blogs</h2>
+        <div>
+          {user.name} logged in
+          <button onClick={logout}>logout</button>
+        </div>
+        <h2>Users</h2>
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>blogs created</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allUsers.map((user) => (
+              <tr key={user.id}>
+                <td>
+                  <Link to={`/users/${user.id}`}>{user.name}</Link>
+                </td>
+                <td>{user.blogs.length}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  const User = ({ users }) => {
+    const id = useParams().id
+    const blogger = users.find((u) => u.id === id)
+    return (
+      <div>
+        <h2>blogs</h2>
+        <div>
+          {user.name} logged in
+          <button onClick={logout}>logout</button>
+        </div>
+        <h2>{blogger.name}</h2>
+        <h3>added blogs</h3>
+        <ul>
+          {blogger.blogs.map((blog) => (
+            <li key={blog.id}>{blog.title}</li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  const Blog = () => {
+    const match = useMatch('/blogs/:id')
+
+    const blog = match
+      ? allBlogs.find((blog) => blog.id === match.params.id)
+      : null
+
+    const remove = async () => {
+      const ok = window.confirm(
+        `Sure you want to remove '${blog.title}' by ${blog.author}`
+      )
+      if (ok) {
+        removeBlogMutation.mutate(blog.id)
+        notifyWith(`The blog' ${blog.title}' by '${blog.author} removed`)
+      }
+    }
+
+    const like = async () => {
+      updateBlogMutation.mutate({
+        ...blog,
+        likes: blog.likes + 1,
+        user: blog.user.id
+      })
+      notifyWith(`A like for the blog '${blog.title}' by '${blog.author}'`)
+    }
+
+    const canRemove = () => {
+      user && blog.user.username === user.username
+    }
+
+    return (
+      <div>
+        <h2>blogs</h2>
+        <div>
+          {user.name} logged in
+          <button onClick={logout}>logout</button>
+        </div>
+        <h2>
+          {blog.title} {blog.author}
+        </h2>
+
+        <div>
+          <div>
+            {' '}
+            <a href={blog.url}> {blog.url}</a>{' '}
+          </div>
+          <div>
+            likes {blog.likes} <button onClick={like}>like</button>
+          </div>
+          <div>{blog.user && blog.user.name}</div>
+          {canRemove && <button onClick={remove}>delete</button>}
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div>
-      <h2>blogs</h2>
-      <Notification info={notification} />
+    <Router>
       <div>
-        {user.name} logged in
-        <button onClick={logout}>logout</button>
+        <Link style={padding} to="/">
+          home
+        </Link>
+        <Link style={padding} to="/users">
+          users
+        </Link>
       </div>
-      <Togglable buttonLabel="new note" ref={blogFormRef}>
-        <NewBlog addBlog={addBlog} />
-      </Togglable>
-      <div>
-        {allBlogs.sort(byLikes).map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            like={() => like(blog)}
-            canRemove={user && blog.user.username === user.username}
-            remove={() => remove(blog)}
-          />
-        ))}
-      </div>
-    </div>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/users/:id" element={<User users={allUsers} />} />
+        <Route path="/blogs/:id" element={<Blog />} />
+      </Routes>
+    </Router>
   )
 }
 

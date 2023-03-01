@@ -1,22 +1,13 @@
-import { useState } from 'react'
 import PropTypes from 'prop-types'
 
 const Blog = ({ blog, like, canRemove, remove }) => {
-  const [visible, setVisible] = useState(false)
-
-  const style = {
-    marginBottom: 2,
-    padding: 5,
-    borderStyle: 'solid'
-  }
-
   return (
-    <div style={style} className="blog">
-      {blog.title} {blog.author}
-      <button onClick={() => setVisible(!visible)}>
-        {visible ? 'hide' : 'show'}
-      </button>
-      {visible && (
+    <div>
+      <h2>
+        {blog.title} {blog.author}
+      </h2>
+
+      {
         <div>
           <div>
             {' '}
@@ -28,7 +19,7 @@ const Blog = ({ blog, like, canRemove, remove }) => {
           <div>{blog.user && blog.user.name}</div>
           {canRemove && <button onClick={remove}>delete</button>}
         </div>
-      )}
+      }
     </div>
   )
 }

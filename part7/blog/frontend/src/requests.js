@@ -25,3 +25,5 @@ export const updateBlog = async (object) => {
 export const removeBlog = async (id) => {
   await axios.delete(`${baseUrl}/${id}`, { headers })
 }
+
+export const getUsers = () => axios.get('/api/users').then((res) => res.data)
