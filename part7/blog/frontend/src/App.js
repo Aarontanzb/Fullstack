@@ -22,6 +22,7 @@ import {
   useParams,
   useMatch
 } from 'react-router-dom'
+import { Navbar, Nav } from 'react-bootstrap'
 
 import Blogs from './components/Blogs'
 import LoginForm from './components/Login'
@@ -123,6 +124,7 @@ const App = () => {
     notifyWith(`A new blog '${newBlog.title}' by '${newBlog.author}' added`)
     blogFormRef.current.toggleVisibility()
     newBlogMutation.mutate({ newBlog })
+    console.log(newBlog)
   }
 
   if (!user) {
@@ -142,11 +144,8 @@ const App = () => {
       <div>
         <h2>blogs</h2>
         <Notification info={notification} />
-        <div>{user.name} logged in</div>
-        <div>
-          <button onClick={logout}>logout</button>
-        </div>
-        <Togglable buttonLabel="new blog" ref={blogFormRef}>
+        <div></div>
+        <Togglable buttonLabel="create new" ref={blogFormRef}>
           <NewBlog addBlog={addBlog} />
         </Togglable>
         <div>
@@ -163,7 +162,6 @@ const App = () => {
       <div>
         <h2>blogs</h2>
         <div>
-          {user.name} logged in
           <button onClick={logout}>logout</button>
         </div>
         <h2>Users</h2>
@@ -196,7 +194,6 @@ const App = () => {
       <div>
         <h2>blogs</h2>
         <div>
-          {user.name} logged in
           <button onClick={logout}>logout</button>
         </div>
         <h2>{blogger.name}</h2>
@@ -224,6 +221,7 @@ const App = () => {
       if (ok) {
         removeBlogMutation.mutate(blog.id)
         notifyWith(`The blog' ${blog.title}' by '${blog.author} removed`)
+        window.location.href = 'http://localhost:3000/'
       }
     }
 
@@ -241,10 +239,9 @@ const App = () => {
     }
 
     return (
-      <div>
+      <div className="container">
         <h2>blogs</h2>
         <div>
-          {user.name} logged in
           <button onClick={logout}>logout</button>
         </div>
         <h2>
@@ -268,14 +265,31 @@ const App = () => {
 
   return (
     <Router>
-      <div>
-        <Link style={padding} to="/">
-          home
-        </Link>
-        <Link style={padding} to="/users">
-          users
-        </Link>
-      </div>
+      <Navbar collapseOnSelect expand="lg" bg="light" variant="light">
+        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+        <Navbar.Collapse id="responsive-navbar-nav">
+          <Nav className="mr-auto">
+            <Nav.Link href="#" as="span">
+              <Link style={padding} to="/">
+                blogs
+              </Link>
+            </Nav.Link>
+            <Nav.Link href="#" as="span">
+              <Link style={padding} to="/users">
+                users
+              </Link>
+            </Nav.Link>
+            <Nav.Link href="#" as="span">
+              {user ? (
+                <>
+                  <span>{user.name} logged in</span>{' '}
+                  <button onClick={logout}>logout</button>{' '}
+                </>
+              ) : null}
+            </Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
 
       <Routes>
         <Route path="/" element={<Home />} />

@@ -16,6 +16,7 @@ router.post('/', userExtractor, async (request, response) => {
     author,
     url,
     likes: likes ? likes : 0,
+    comments: []
   })
 
   const user = request.user
@@ -65,6 +66,21 @@ router.delete('/:id', userExtractor, async (request, response) => {
   await blog.remove()
 
   response.status(204).end()
+})
+
+router.post('/:id/comments', async (request, response) => {
+  const blog = await Blog.findById(request.params.id)
+  const body = request.body
+
+  console.log('request body', body)
+  const comment = new Comment({
+    content: body.content,
+    blogId: body.blogId
+  })
+  comment
+    .save()
+    .then((newComment) => response.status(201).json(newComment))
+    .catch((error) => next(error))
 })
 
 module.exports = router
