@@ -13,7 +13,7 @@ const options: cors.CorsOptions = {
 app.use(cors(options));
 app.use(express.json());
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.get('/api/ping', (_req, res) => {
   console.log('someone pinged here');
